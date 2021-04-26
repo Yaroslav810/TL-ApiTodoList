@@ -27,3 +27,9 @@ C:\projects\travelline\api-todolist\TodoList\obj\Debug\net5.0\TodoList.dll
 C:\projects\travelline\api-todolist\TodoList\obj\Debug\net5.0\ref\TodoList.dll
 C:\projects\travelline\api-todolist\TodoList\obj\Debug\net5.0\TodoList.pdb
 C:\projects\travelline\api-todolist\TodoList\obj\Debug\net5.0\TodoList.genruntimeconfig.cache
+C:\projects\travelline\api-todolist\TodoList\bin\Debug\net5.0\System.Data.SqlClient.dll
+C:\projects\travelline\api-todolist\TodoList\bin\Debug\net5.0\runtimes\win-arm64\native\sni.dll
+C:\projects\travelline\api-todolist\TodoList\bin\Debug\net5.0\runtimes\win-x64\native\sni.dll
+C:\projects\travelline\api-todolist\TodoList\bin\Debug\net5.0\runtimes\win-x86\native\sni.dll
+C:\projects\travelline\api-todolist\TodoList\bin\Debug\net5.0\runtimes\unix\lib\netcoreapp2.1\System.Data.SqlClient.dll
+C:\projects\travelline\api-todolist\TodoList\bin\Debug\net5.0\runtimes\win\lib\netcoreapp2.1\System.Data.SqlClient.dll

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -7,7 +9,9 @@ namespace TodoList
 {
     public class ToDoRepository
     {
-        private static List<ToDo> DataBase = new List<ToDo>();
+        private const int MAX_LENGTH = 255;
+
+        private static string _connectionString = @"Server=MSI\SQLEXPRESS;Database=ToDoBase;Trusted_Connection=True;";
 
         private class ToDo
         {
@@ -26,33 +30,88 @@ namespace TodoList
             }
         }
 
-        private int GetId() => DataBase.Count > 0 ? DataBase.Max(x => x.Id) + 1 : 1;
-
         public List<ToDoDto> GetAll()
         {
-            return DataBase.ConvertAll(x => new ToDoDto
+            List<ToDoDto> toDos = new List<ToDoDto>();
+            using ( SqlConnection connection = new SqlConnection( _connectionString ) )
             {
-                Id = x.Id,
-                Name = x.Name,
-                Done = x.Done,
-            });
+                connection.Open();
+                using ( SqlCommand command = connection.CreateCommand() )
+                {
+                    command.CommandText = 
+                        @"SELECT
+                            [ToDoId],
+                            [Name],
+                            [Done]
+                        FROM [ToDo]";
+
+                    using ( SqlDataReader reader = command.ExecuteReader() )
+                    {
+                        while ( reader.Read() )
+                        {
+                            var toDo = new ToDoDto
+                            {
+                                Id = Convert.ToInt32(reader["ToDoId"]),
+                                Name = Convert.ToString(reader["Name"]),
+                                Done = Convert.ToBoolean(reader["Done"]),
+                            };
+                            toDos.Add(toDo);
+                        }
+                    }
+                }
+            }
+            return toDos;
         }
 
-        public int Create(ToDoDto toDoDto)
+        public int Create( ToDoDto toDoDto )
         {
-            int id = GetId();
-            ToDo todo = new ToDo(id, toDoDto.Name, false);
-            DataBase.Add(todo);
+            using ( SqlConnection connection = new SqlConnection( _connectionString ) )
+            {
+                connection.Open();
+                using ( SqlCommand command = connection.CreateCommand() )
+                {
+                    command.CommandText = @"
+                    INSERT INTO [ToDo]
+                       ([Name],
+                        [Done])
+                    VALUES
+                       (@name,
+                        @done)
+                    SELECT SCOPE_IDENTITY()";
 
-            return id;
+                    string name = toDoDto.Name;
+                    if (name.Length > MAX_LENGTH)
+                    {
+                        name = name.Substring(0, MAX_LENGTH);
+                    }
+
+                    command.Parameters.Add("@name", SqlDbType.NVarChar).Value = name;
+                    command.Parameters.Add("@done", SqlDbType.Bit).Value = toDoDto.Done;
+
+                    return Convert.ToInt32(command.ExecuteScalar());
+                }
+            }
         }
 
         public void Update(int id, ToDoDto toDoDto)
         {
-            ToDo finded = DataBase.FirstOrDefault(x => x.Id == id);
-            if (finded == null) return;
-            finded.Name = toDoDto.Name;
-            finded.Done = toDoDto.Done;
+            Console.WriteLine("There");
+            using ( SqlConnection connection = new SqlConnection( _connectionString ) )
+            {
+                connection.Open();
+                using ( SqlCommand command = connection.CreateCommand() )
+                {
+                    command.CommandText = @"
+                        UPDATE [ToDo]
+                        SET [Done] = @done
+                        WHERE [ToDoId] = @toDoId";
+
+                    command.Parameters.Add("@done", SqlDbType.Bit).Value = toDoDto.Done;
+                    command.Parameters.Add("@toDoId", SqlDbType.Int).Value = id;
+
+                    command.ExecuteNonQuery();
+                }
+            }
         }
     }
 }
